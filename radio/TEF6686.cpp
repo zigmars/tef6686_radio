@@ -1,6 +1,6 @@
+#include <Arduino.h>
 #include "TEF6686.h"
-
-const char* ptyLUT[51] = { 
+const char* const PROGMEM ptyLUT[51] = {
       "      None      ",
       "      News      ",
       "  Information   ",

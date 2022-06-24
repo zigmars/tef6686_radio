@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "TEF6686.h"
 
 /* station */
@@ -7,30 +8,30 @@ StationMemType StationRecord[MaxStationNum];
 #define AreaSelect Radio_EUR
 
 #if (AreaSelect==Radio_CHN)   /*China */          
-const Radio_AreaConfigDef Radio_AreaConfig={
+const Radio_AreaConfigDef PROGMEM  Radio_AreaConfig ={
     //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
     10800,        6500,      1620,       522,         FM_Step_100k,        FM_Step_100k,                 9,                  9};
 	
-const FreqBaundDef FreqBaundConfig[MaxBandNum]={		
+const FreqBaundDef PROGMEM FreqBaundConfig[MaxBandNum]={
    /*0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW*/
     {6500,10800},{6500,10800},{6500,10800},{522,1710},{144,288},{2300,27000}};    
     
 #elif (AreaSelect==Radio_EUR)  /*Europe */   	                        
-const Radio_AreaConfigDef Radio_AreaConfig={
+const Radio_AreaConfigDef PROGMEM Radio_AreaConfig={
 //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
 10800,        6500,      1602,       531,         FM_Step_100k,        FM_Step_100k,               9,                  9};
-const FreqBaundDef FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW
+const FreqBaundDef PROGMEM FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW
     {6500,10800},{6500,10800},{6500,10800},{144,288},{522,1710},{2300,27000}};    // 
     
 #elif (AreaSelect==Radio_USA)      /*USA */                
-const Radio_AreaConfigDef Radio_AreaConfig={
+const Radio_AreaConfigDef PROGMEM Radio_AreaConfig={
 //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
 10790,        8750,      1710,       530,        FM_Step_100k,        FM_Step_100k,         10,                  10};
 const FreqBaundDef FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW
     {6500,10800},{6500,10800},{6500,10800},{144,288},{522,1710},{2300,27000}};    // 
     
 #elif (AreaSelect==Radio_JPN)      /*Japan */                
-const Radio_AreaConfigDef Radio_AreaConfig={
+const Radio_AreaConfigDef PROGMEM Radio_AreaConfig={
 //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
 9000,        7600,      1629,       522,          FM_Step_100k,        FM_Step_100k,               9,                   9};
 const FreqBaundDef FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW

@@ -1,13 +1,14 @@
+#include <Arduino.h>
 #include "TEF6686.h"
 #include "Tuner_Patch_Lithio_V102_p209.h"
 
-TwoWire Wire2 (I2C_PORT, I2C_FAST_MODE);
+TwoWire Wire2;
 
 #define INIT_FLAG_TIMER		0xff
 #define INIT_FLAG_PATCH1	0xfe
 #define INIT_FLAG_PATCH2	0xfd
 
-static const unsigned char tuner_init_tab[] = {
+static const unsigned char PROGMEM tuner_init_tab[] = {
 3,	0x1c,0x00,0x00,//Clear Required Initialization Control
 3,	0x1C,0x00,0x74,//Set Required Initialization Control(1)
 //Load Required Initialization(s)....
