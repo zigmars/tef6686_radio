@@ -135,6 +135,8 @@ bool strcmp(char* str1, char* str2, int length) {
 
 void displayInfo() {
    delay(10);
+   Serial.print("Band:");
+   Serial.println((unsigned)Radio_GetCurrentBand());
    Serial.print("Frequency:"); 
    Serial.print(frequency); 
    Serial.print(" Volume:"); 
