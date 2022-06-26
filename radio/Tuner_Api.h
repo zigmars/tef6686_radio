@@ -5,7 +5,7 @@
 #define RADIO_LITHIO_ENABLE
 
 
-typedef enum{
+typedef enum {
 	Radio_Hero,
 	Radio_Atomic,
 	Radio_Atomic2,
@@ -14,7 +14,7 @@ typedef enum{
 	Radio_Dirana3,
 
 	Radio_Last
-}eDev_Type;
+} eDev_Type;
 extern eDev_Type RadioDev;
 
 #define Is_Radio_Dirana3	(RadioDev == Radio_Dirana3)
@@ -36,7 +36,7 @@ typedef enum{
 	RADIO_SECONDARY,
 
 	RADIO_ID_LAST
-}RADIO_ID;
+} RADIO_ID;
 
 
 /* tuner mode */
@@ -97,7 +97,7 @@ typedef enum{
 
 
 /*radio band define*/
-#define MaxBandNum 9		 
+#define MaxBandNum 9
 #define FM1_BAND 0
 #define FM2_BAND 1
 #define FM3_BAND 2
@@ -146,19 +146,19 @@ NOTE:FM Freqency uint is 10KHz,AM Freqency uint is 1KHz*/
 #define StationRecordLen (MaxBandNum*MaxStationNum*2)
 
 /*are config parameters struct*/
-typedef struct{         //area radio parameter 
+typedef struct {         //area radio parameter
 	uint32_t FM_MaxFreq;			 //fm max freq
 	uint32_t FM_MinFreq;                        //fm min freq
 	uint32_t AM_MaxFreq;                       // am max freq
 	uint32_t AM_MinFreq;                        //am min freq
 	uint32_t FM_AutoSeekStep;               // fm step
-	uint32_t FM_ManualSeekStep;           
+	uint32_t FM_ManualSeekStep;
 	uint32_t AM_AutoSeekStep;              //am step
 	uint32_t AM_ManualSeekStep;
-}Radio_AreaConfigDef;
+} Radio_AreaConfigDef;
 
 /*area define*/
-enum Radio_AreaCode{  
+enum Radio_AreaCode {
     Radio_CHN=0,
     Radio_EUR,
     Radio_USA,
@@ -166,21 +166,18 @@ enum Radio_AreaCode{
 };
 
  /*band freq range*/
-typedef struct     
-{
-    uint16_t MinFreq;
-    uint16_t MaxFreq;
-}FreqBaundDef;
- 
-/*tation freq*/
-typedef struct 
-{
-    uint16_t Freq[MaxStationNum];   //0-current work freq,or backup freq;
-}StationMemType;
+typedef struct {
+    uint16_t Min;
+    uint16_t Max;
+} Range;
 
-typedef enum
-{
-	eAR_TuningAction_Standby	  = 0, 
+/*tation freq*/
+typedef struct {
+    uint16_t Freq[MaxStationNum];   //0-current work freq,or backup freq;
+} StationMemType;
+
+typedef enum {
+	eAR_TuningAction_Standby	  = 0,
 	eAR_TuningAction_Preset 	  = 1, /*!< Tune to new program with short mute time */
 	eAR_TuningAction_Search 	  = 2, /*!< Tune to new program and stay muted */
 	eAR_TuningAction_AF_Update	  = 3, /*!< Tune to alternative frequency, store quality and tune back with inaudible mute */

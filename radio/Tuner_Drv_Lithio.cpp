@@ -4,9 +4,9 @@
 /* -----------------------------------------------------------------------------
  * Internal define:
  *-----------------------------------------------------------------------------*/
- 
+
 #define High_16bto8b(a)	((uint8_t)((a) >> 8))
-#define Low_16bto8b(a) 	((uint8_t)(a )) 
+#define Low_16bto8b(a) 	((uint8_t)(a ))
 
 #define Convert8bto16b(a)	((uint16_t)(((uint16_t)(*(a))) << 8 |((uint16_t)(*(a+1)))))
 
@@ -29,33 +29,29 @@ typedef struct{
 	uint16_t len;	//buffer size of all data
 }TEF668x_CMD_LEN;
 */
-#define TEF668x_CMD_LEN_MAX	20
+#define TEF668x_CMD_LEN_MAX 20
 
-uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, uint16_t len,...)
-{
-	uint16_t i;
-	uint8_t buf[TEF668x_CMD_LEN_MAX];
-	uint16_t temp;
+uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, uint16_t len, ...) {
+    uint8_t buf[TEF668x_CMD_LEN_MAX];
     va_list vArgs;
 
     va_start(vArgs, len);
-		
-	buf[0]= module;			//module,		FM/AM/APP
-	buf[1]= cmd;		//cmd,		1,2,10,... 
-	buf[2]= 1;	//index, 		always 1
+
+    buf[0]= module;		//module,		FM/AM/APP
+    buf[1]= cmd;		//cmd,		1,2,10,...
+    buf[2]= 1;			//index, 		always 1
 
 //fill buffer with 16bits one by one
-	for(i=3;i<len;i++)
-	{
-		temp = va_arg(vArgs,int);	//the size only uint16_t valid for compile
-		
-		buf[i++]=High_16bto8b(temp);		
-		buf[i]=Low_16bto8b(temp);		
-	}
-	
-	va_end(vArgs);
-	
-	return Tuner_WriteBuffer(buf, len);
+    for(uint16_t i = 3; i < len; i++) {
+        uint16_t temp = va_arg(vArgs,int);	//the size only uint16_t valid for compile
+
+        buf[i++]=High_16bto8b(temp);
+        buf[i]=Low_16bto8b(temp);
+    }
+
+    va_end(vArgs);
+
+    return Tuner_WriteBuffer(buf, len);
 }
 
 
@@ -64,7 +60,7 @@ static uint16_t devTEF668x_Get_Cmd(TEF668x_MODULE module, uint8_t cmd, uint8_t *
 	uint8_t buf[3];
 
 	buf[0]= module;			//module,		FM/AM/APP
-	buf[1]= cmd;		//cmd,		1,2,10,... 
+	buf[1]= cmd;		//cmd,		1,2,10,...
 	buf[2]= 1;	//index, 		always 1
 
 	Tuner_WriteBuffer(buf, 3);
@@ -76,7 +72,7 @@ static uint16_t devTEF668x_Get_Cmd(TEF668x_MODULE module, uint8_t cmd, uint8_t *
 module 32 / 33 FM / AM
 cmd 1 Tune_To mode, frequency
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	tuning actions
@@ -101,19 +97,18 @@ index
 	MW 522 � 1710 522 � 1710 kHz / 1 kHz step size
 	SW 2300 � 27000 2.3 � 27 MHz / 1 kHz step size
 */
-uint16_t devTEF668x_Radio_Tune_To (uint8_t fm,uint16_t mode,uint16_t frequency )
-{
-	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Tune_To, 
-			(mode<=5)? 7 : 5,
-			mode, frequency);
+uint16_t devTEF668x_Radio_Tune_To (uint8_t fm, uint16_t mode, uint16_t freq) {
+	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
+                                TEF665X_Cmd_Tune_To,
+                                (mode<=5) ? 7 : 5,
+                                mode, freq);
 }
 
 /*
 module 32 FM
 cmd 2 Set_Tune_Options afu_bw_mode, afu_bandwidth, afu_mute_time, afu_sample_time
 
-index 
+index
 1 afu_bw_mode
 	[ 15:0 ]
 	IF bandwidth control mode during AF_Update
@@ -137,7 +132,7 @@ index
 uint16_t devTEF668x_Radio_Set_Tune_Options(uint8_t fm,uint16_t afu_bw_mode,uint16_t afu_bandwidth,uint16_t afu_mute_time,uint16_t afu_sample_time)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
-			TEF665X_Cmd_Set_Tune_Options, 
+			TEF665X_Cmd_Set_Tune_Options,
 			11,
 			afu_bw_mode, afu_bandwidth,afu_mute_time,afu_sample_time);
 }
@@ -147,7 +142,7 @@ module 32 / 33 FM / AM
 cmd 10 Set_Bandwidth FM : mode, bandwidth, control_sensitivity, low_level_sensitivity
 AM : mode, bandwidth
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	IF bandwidth control mode
@@ -202,7 +197,7 @@ index
 uint16_t devTEF668x_Radio_Set_RFAGC(uint8_t fm,uint16_t start,uint16_t extension)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_RFAGC, 
+			TEF665X_Cmd_Set_RFAGC,
 			fm? 7: 5,
 			start,extension);
 }
@@ -221,7 +216,7 @@ cmd 12 Set_Antenna attenuation
 uint16_t devTEF668x_Radio_Set_Antenna(uint8_t fm,uint16_t attenuation)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_Antenna, 
+			TEF665X_Cmd_Set_Antenna,
 			5,
 			attenuation);
 }
@@ -230,7 +225,7 @@ uint16_t devTEF668x_Radio_Set_Antenna(uint8_t fm,uint16_t attenuation)
 module 32 FM
 cmd 20 Set_MphSuppression mode
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	FM multipath suppression
@@ -246,7 +241,7 @@ uint16_t devTEF668x_Radio_Set_MphSuppression(uint8_t fm,uint16_t mode)
 }
 /*
 FM cmd 22 Set_ChannelEqualizer
-Optional use of the FM channel equalizer. 
+Optional use of the FM channel equalizer.
 module   32  FM
 cmd  22  Set_ChannelEqualizer  mode
 index  1  mode
@@ -263,7 +258,7 @@ uint16_t devTEF668x_Radio_Set_ChannelEqualizer(uint8_t fm,uint16_t mode)
 			mode);
 }
 /*
-module    32  FM 
+module    32  FM
 cmd  32  Set_StereoImprovement  mode
 index  1  mode
 [ 15:0 ]
@@ -280,22 +275,22 @@ uint16_t devTEF668x_Radio_Set_StereoImprovement(uint8_t fm,uint16_t mode)
 }
 /*
 cmd  70  Set_StHiBlend_Time  slow_attack, slow_decay, fast_attack, fast_decay
-index  1  slow_attack 
+index  1  slow_attack
 [ 15:0 ]
 slow attack time of weak signal handling
 60 �� 2000 (ms) = 60 ms �� 2 s slow attack time
 500 = 500 ms (default)
-2  slow_decay 
+2  slow_decay
 [ 15:0 ]
 slow decay time of weak signal handling
 120 �� 12500 (ms) = 120 ms �� 12.5 s slow attack time
 2000 = 2 s (default)
-3  fast_attack 
+3  fast_attack
 [ 15:0 ]
 fast attack time of weak signal handling
 10 �� 1200 (*0.1 ms) = 1 ms �� 120 ms fast attack time
 20 = 2 ms (default)
-4  fast_decay 
+4  fast_decay
 [ 15:0 ]
 fast decay time of weak signal handling
 20 �� 5000 ( *0.1 ms) = 2 ms �� 500 ms fast attack time
@@ -313,7 +308,7 @@ uint16_t devTEF668x_Radio_Set_StHiBlend_Time(uint8_t fm,uint16_t slow_attack,uin
 module 32 / 33 FM / AM
 cmd 23 Set_NoiseBlanker mode, sensitivity
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	noise blanker
@@ -328,7 +323,7 @@ index
 uint16_t devTEF668x_Radio_Set_NoiseBlanker(uint8_t fm,uint16_t mode,uint16_t sensitivity)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_NoiseBlanker, 
+			TEF665X_Cmd_Set_NoiseBlanker,
 			7,
 			mode,sensitivity);
 }
@@ -336,7 +331,7 @@ uint16_t devTEF668x_Radio_Set_NoiseBlanker(uint8_t fm,uint16_t mode,uint16_t sen
 module 33 AM
 cmd 24 Set_NoiseBlanker_Audio mode, sensitivity
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	AM audio noise blanker (audio frequency detection)
@@ -351,7 +346,7 @@ index
 uint16_t devTEF668x_Radio_Set_NoiseBlanker_Audio(uint8_t fm,uint16_t mode,uint16_t sensitivity)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_NoiseBlanker_Audio, 
+			TEF665X_Cmd_Set_NoiseBlanker_Audio,
 			7,
 			mode,sensitivity);
 }
@@ -359,7 +354,7 @@ uint16_t devTEF668x_Radio_Set_NoiseBlanker_Audio(uint8_t fm,uint16_t mode,uint16
 module 32 / 33 FM / AM
 cmd 30 Set_DigitalRadio mode
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	digital radio
@@ -369,7 +364,7 @@ index
 uint16_t devTEF668x_Radio_Set_DigitalRadio(uint8_t fm,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_DigitalRadio, 
+			TEF665X_Cmd_Set_DigitalRadio,
 			5,
 			mode);
 }
@@ -377,7 +372,7 @@ uint16_t devTEF668x_Radio_Set_DigitalRadio(uint8_t fm,uint16_t mode)
 module 32 FM
 cmd 31 Set_Deemphasis timeconstant
 
-index 
+index
 1 timeconstant
 	[ 15:0 ]
 	deemphasis time constant
@@ -388,7 +383,7 @@ index
 uint16_t devTEF668x_Radio_Set_Deemphasis(uint8_t fm,uint16_t timeconstant)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
-			TEF665X_Cmd_Set_Deemphasis, 
+			TEF665X_Cmd_Set_Deemphasis,
 			5,
 			timeconstant);
 }
@@ -436,7 +431,7 @@ index 1 step1
 uint16_t devTEF668x_Radio_Set_LevelStep(uint8_t fm,uint16_t step1,uint16_t step2,uint16_t step3,uint16_t step4,uint16_t step5,uint16_t step6,uint16_t step7)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_LevelStep, 
+			TEF665X_Cmd_Set_LevelStep,
 			17,
 			(uint16_t)step1,(uint16_t)step2,(uint16_t)step3,(uint16_t)step4,(uint16_t)step5,(uint16_t)step6,(uint16_t)step7);
 }
@@ -454,7 +449,7 @@ cmd 39 Set_LevelOffset offset
 uint16_t devTEF668x_Radio_Set_LevelOffset(uint8_t fm,uint16_t offset)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_LevelOffset, 
+			TEF665X_Cmd_Set_LevelOffset,
 			5,
 			(uint16_t)offset);
 }
@@ -487,7 +482,7 @@ cmd 40 Set_Softmute_Time slow_attack, slow_decay, fast_attack, fast_decay
 uint16_t devTEF668x_Radio_Set_Softmute_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_Softmute_Time, 
+			TEF665X_Cmd_Set_Softmute_Time,
 			11,
 			slow_attack,slow_decay,fast_attack,fast_decay);
 }
@@ -503,7 +498,7 @@ cmd 42 Set_Softmute_Level mode, start, slope
 	1 = fast timer control
 	2 = slow timer control (default)
 	3 = dual timer control; combined fast and slow timer control
-2 start 
+2 start
 	[ 15:0 ] 0 �K 500 [*0.1 dB��V] = control when level falls below 0 dB��V �K 50 dB��V
 	150 = 15 dB��V (FM default) / 280 = 28 dB��V (AM default)
 3 slope
@@ -513,7 +508,7 @@ cmd 42 Set_Softmute_Level mode, start, slope
 uint16_t devTEF668x_Radio_Set_Softmute_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
-			TEF665X_Cmd_Set_Softmute_Level, 
+			TEF665X_Cmd_Set_Softmute_Level,
 			9,
 			mode,start,slope);
 }
@@ -543,7 +538,7 @@ cmd 43 Set_Softmute_Noise mode, start, slope
 uint16_t devTEF668x_Radio_Set_Softmute_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
-			TEF665X_Cmd_Set_Softmute_Noise, 
+			TEF665X_Cmd_Set_Softmute_Noise,
 			9,
 			mode,start,slope);
 }
@@ -607,7 +602,7 @@ uint16_t devTEF668x_Radio_Set_Softmute_Max(uint8_t fm,uint16_t mode,uint16_t lim
 module 32 / 33 FM / AM
 cmd 50 Set_Highcut_Time slow_attack, slow_decay, fast_attack, fast_decay
 
-index 
+index
 1 slow_attack
 	[ 15:0 ]
 	slow attack time of weak signal handling
@@ -642,7 +637,7 @@ uint16_t devTEF668x_Radio_Set_Highcut_Time(uint8_t fm,uint16_t slow_attack,uint1
 module 32 / 33 FM / AM
 cmd 51 Set_Highcut_Mod mode, start, slope, shift
 
-index 
+index
 1 mode modulation dependent weak signal handling
 	0 = off (default)
 	1 = on (independent modulation timer)
@@ -710,7 +705,7 @@ uint16_t devTEF668x_Radio_Set_Highcut_Level(uint8_t fm,uint16_t mode,uint16_t st
 module 32 FM
 cmd 53 Set_Highcut_Noise mode, start, slope
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	timer selection
@@ -743,7 +738,7 @@ uint16_t devTEF668x_Radio_Set_Highcut_Noise(uint8_t fm,uint16_t mode,uint16_t st
 module 32 FM
 cmd 54 Set_Highcut_Mph mode, start, slope
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	timer selection
@@ -775,7 +770,7 @@ uint16_t devTEF668x_Radio_Set_Highcut_Mph(uint8_t fm,uint16_t mode,uint16_t star
 module 32 / 33 FM / AM
 cmd 55 Set_Highcut_Max mode, limit
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	weak signal handling (dynamic control)
@@ -827,7 +822,7 @@ uint16_t devTEF668x_Radio_Set_Highcut_Min(uint8_t fm,uint16_t mode,uint16_t limi
 module 32 / 33 FM / AM
 cmd 58 Set_Lowcut_Min mode, limit
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	strong signal handling
@@ -852,7 +847,7 @@ uint16_t devTEF668x_Radio_Set_Lowcut_Min(uint8_t fm,uint16_t mode,uint16_t limit
 module 32 FM
 cmd 60 Set_Stereo_Time slow_attack, slow_decay, fast_attack, fast_decay
 
-index 
+index
 1 slow_attack
 	[ 15:0 ]
 	slow attack time of weak signal handling
@@ -887,7 +882,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Time(uint8_t fm,uint16_t slow_attack,uint16
 module 32 FM
 cmd 61 Set_Stereo_Mod mode, start, slope, shift
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	modulation dependent weak signal handling
@@ -900,7 +895,7 @@ index
 	210 = 21% (default)
 	( note : for FM band 100% modulation equals 75 kHz deviation )
 3 slope
-	[ 15:0 ] 
+	[ 15:0 ]
 	30 � 1000 (*0.1 %) = control over modulation range of 3% � 100%
 	90 = 9% (default)
 4 shift
@@ -923,7 +918,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Mod(uint8_t fm,uint16_t mode,uint16_t start
 module 32 FM
 cmd 62 Set_Stereo_Level mode, start, slope
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	timer selection
@@ -955,7 +950,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Level(uint8_t fm,uint16_t mode,uint16_t sta
 module 32 FM
 cmd 63 Set_Stereo_Noise mode, start, slope
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	timer selection
@@ -987,7 +982,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Noise(uint8_t fm,uint16_t mode,uint16_t sta
 module 32 FM
 cmd 64 Set_Stereo_Mph mode, start, slope
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	timer selection
@@ -995,7 +990,7 @@ index
 	1 = fast timer control
 	2 = slow timer control
 	3 = dual timer control; combined fast and slow timer control (default)
-2 start 
+2 start
 	0 � 800 [*0.1 %] = control when mph above 0� 80% of WAM detector
 	240 = 24% (default)
 3 slope
@@ -1037,7 +1032,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Max(uint8_t fm,uint16_t mode)
 module 32 FM
 cmd 66 Set_Stereo_Min mode, limit
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	strong signal handling
@@ -1063,7 +1058,7 @@ uint16_t devTEF668x_Radio_Set_Stereo_Min(uint8_t fm,uint16_t mode,uint16_t limit
 module 32 / 33 FM / AM
 cmd 80 Set_Scaler gain
 
-index 
+index
 1 gain
 	[ 15:0 ] (signed)
 	channel gain
@@ -1082,7 +1077,7 @@ uint16_t devTEF668x_Radio_Set_Scaler(uint8_t fm,uint16_t gain)
 module 32 FM
 cmd 81 Set_RDS mode, restart, interface
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	RDS operation control
@@ -1117,7 +1112,7 @@ uint16_t devTEF668x_Radio_Set_RDS(uint8_t fm,uint16_t mode,uint16_t restart,uint
 module 32 / 33 FM / AM
 cmd 82 Set_QualityStatus mode, interface
 
-index 
+index
 1 mode
 [ 15:0 ]
 	quality status flag after tuning ready
@@ -1142,7 +1137,7 @@ uint16_t devTEF668x_Radio_Set_QualityStatus(uint8_t fm,uint16_t mode,uint16_t in
 module 32 / 33 FM / AM
 cmd 83 Set_DR_Blend mode, in_time, out_time, gain
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	blend pin use (DR_BL input)
@@ -1179,7 +1174,7 @@ uint16_t devTEF668x_Radio_Set_DR_Blend(uint8_t fm,uint16_t mode,uint16_t in_time
 module 32 / 33 FM / AM
 cmd 84 Set_DR_Options samplerate
 
-index 
+index
 1 samplerate
 [ 15:0 ]
 	baseband digital radio sample rate (DR_I2S output)
@@ -1199,7 +1194,7 @@ uint16_t devTEF668x_Radio_Set_DR_Options(uint8_t fm,uint16_t samplerate)
 module 32 / 33 FM / AM
 cmd 85 Set_Specials ana_out, dig_out
 
-index 
+index
 1 ana_out
 	[ 15:0 ]
 	analog output use
@@ -1219,7 +1214,7 @@ uint16_t devTEF668x_Radio_Set_Specials(uint8_t fm,uint16_t ana_out)
 module 48 AUDIO
 cmd 10 Set_Volume volume
 
-index 
+index
 1 volume
 	[ 15:0 ] (signed)
 	audio volume
@@ -1238,7 +1233,7 @@ uint16_t devTEF668x_Audio_Set_Volume(int16_t volume)
 module 48 AUDIO
 cmd 11 Set_Mute mode
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	audio mute
@@ -1248,7 +1243,7 @@ index
 uint16_t devTEF668x_Audio_Set_Mute(uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Mute, 
+			TEF665X_Cmd_Set_Mute,
 			5,
 			mode);
 }
@@ -1258,7 +1253,7 @@ uint16_t devTEF668x_Audio_Set_Mute(uint16_t mode)
 module 48 AUDIO
 cmd 12 Set_Input source
 
-index 
+index
 1 source
 	[ 15:0 ]
 	audio source select
@@ -1270,7 +1265,7 @@ index
 uint16_t devTEF668x_Audio_Set_Input(uint16_t source)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Input, 
+			TEF665X_Cmd_Set_Input,
 			5,
 			source);
 }
@@ -1279,7 +1274,7 @@ uint16_t devTEF668x_Audio_Set_Input(uint16_t source)
 module 48 AUDIO
 cmd 13 Set_Output_Source signal, source
 
-index 
+index
 1 signal
 	[ 15:0 ]
 	audio output
@@ -1296,7 +1291,7 @@ index
 uint16_t devTEF668x_Audio_Set_Output_Source(uint16_t signal,uint16_t source)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Output_Source, 
+			TEF665X_Cmd_Set_Output_Source,
 			7,
 			signal,source);
 }
@@ -1305,7 +1300,7 @@ uint16_t devTEF668x_Audio_Set_Output_Source(uint16_t signal,uint16_t source)
 module 48 AUDIO
 cmd 21 Set_Ana_Out signal, mode
 
-index 
+index
 1 signal
 	[ 15:0 ]
 	analog audio output
@@ -1319,7 +1314,7 @@ index
 uint16_t devTEF668x_Audio_Set_Ana_Out(uint16_t signal,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Ana_Out, 
+			TEF665X_Cmd_Set_Ana_Out,
 			7,
 			signal,mode);
 }
@@ -1328,7 +1323,7 @@ uint16_t devTEF668x_Audio_Set_Ana_Out(uint16_t signal,uint16_t mode)
 module 48 AUDIO
 cmd 22 Set_Dig_IO signal, mode, format, operation, samplerate
 
-index 
+index
 1 signal
 [ 15:0 ]
 	digital audio input / output
@@ -1360,7 +1355,7 @@ index
 uint16_t devTEF668x_Audio_Set_Dig_IO(uint16_t signal,uint16_t mode,uint16_t format,uint16_t operation,uint16_t samplerate)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Dig_IO, 
+			TEF665X_Cmd_Set_Dig_IO,
 			13,
 			signal,mode,format,operation,samplerate);
 }
@@ -1369,7 +1364,7 @@ uint16_t devTEF668x_Audio_Set_Dig_IO(uint16_t signal,uint16_t mode,uint16_t form
 module 48 AUDIO
 cmd 23 Set_Input_Scaler source, gain
 
-index 
+index
 1 source
 	[ 15:0 ]
 	audio source
@@ -1383,7 +1378,7 @@ index
 uint16_t devTEF668x_Audio_Set_Input_Scaler(uint16_t source,uint16_t gain)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_Input_Scaler, 
+			TEF665X_Cmd_Set_Input_Scaler,
 			7,
 			source,gain);
 }
@@ -1392,7 +1387,7 @@ uint16_t devTEF668x_Audio_Set_Input_Scaler(uint16_t source,uint16_t gain)
 module 48 AUDIO
 cmd 24 Set_WaveGen mode, offset, amplitude1, frequency1, amplitude2, frequency2
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	mode
@@ -1432,7 +1427,7 @@ index
 uint16_t devTEF668x_Audio_Set_WaveGen(uint16_t mode,uint16_t offset,uint16_t amplitude1,uint16_t frequency1,uint16_t amplitude2,uint16_t frequency2)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
-			TEF665X_Cmd_Set_WaveGen, 
+			TEF665X_Cmd_Set_WaveGen,
 			15,
 			mode,offset,amplitude1,frequency1,amplitude2,frequency2);
 }
@@ -1441,7 +1436,7 @@ uint16_t devTEF668x_Audio_Set_WaveGen(uint16_t mode,uint16_t offset,uint16_t amp
 module 64 APPL
 cmd 1 Set_OperationMode mode
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	device operation mode
@@ -1452,7 +1447,7 @@ index
 uint16_t devTEF668x_APPL_Set_OperationMode(uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_APPL,
-			TEF665X_Cmd_Set_OperationMode, 
+			TEF665X_Cmd_Set_OperationMode,
 			5,
 			mode);
 }
@@ -1461,7 +1456,7 @@ uint16_t devTEF668x_APPL_Set_OperationMode(uint16_t mode)
 module 64 APPL
 cmd 3 Set_GPIO pin, module, feature
 
-index 
+index
 1 pin
 	[ 15:0 ]
 	GPIO number
@@ -1488,7 +1483,7 @@ index
 uint16_t devTEF668x_APPL_Set_GPIO(uint16_t pin,uint16_t module,uint16_t feature)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_APPL,
-			TEF665X_Cmd_Set_GPIO, 
+			TEF665X_Cmd_Set_GPIO,
 			9,
 			pin,module,feature);
 }
@@ -1497,7 +1492,7 @@ uint16_t devTEF668x_APPL_Set_GPIO(uint16_t pin,uint16_t module,uint16_t feature)
 module 64 APPL
 cmd 4 Set_ReferenceClock frequency
 
-index 
+index
 1 frequency_high
 	MSB part of the reference clock frequency
 	[ 31:16 ]
@@ -1513,7 +1508,7 @@ index
 uint16_t devTEF668x_APPL_Set_ReferenceClock(uint16_t frequency_high,uint16_t frequency_low,uint16_t type)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_APPL,
-			TEF665X_Cmd_Set_ReferenceClock, 
+			TEF665X_Cmd_Set_ReferenceClock,
 			9,
 			frequency_high,frequency_low,type);
 }
@@ -1522,7 +1517,7 @@ uint16_t devTEF668x_APPL_Set_ReferenceClock(uint16_t frequency_high,uint16_t fre
 module 64 APPL
 cmd 5 Activate mode
 
-index 
+index
 1 mode
 	[ 15:0 ]
 	1 = goto �active� state with operation mode of �radio standby�
@@ -1530,7 +1525,7 @@ index
 uint16_t devTEF668x_APPL_Activate(uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_APPL,
-			TEF665X_Cmd_Activate, 
+			TEF665X_Cmd_Activate,
 			5,
 			mode);
 }
@@ -1541,7 +1536,7 @@ cmd 128 / 129 Get_Quality_Status/ Get_Quality_Data
 FM : | status, level, usn, wam, offset, bandwidth, modulation
 AM : | status, level, -, -, offset, bandwidth, modulation
 
-index 
+index
 1 status
 	[ 15:0 ]
 	quality detector status
@@ -1591,7 +1586,7 @@ uint16_t devTEF668x_Radio_Get_Quality_Status (uint8_t fm,uint8_t *status)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Operation_Status,
 			buf,sizeof(buf));
@@ -1606,7 +1601,7 @@ uint8_t devTEF668x_Radio_Is_AF_Update_Available (void)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,TEF665X_Cmd_Get_Operation_Status,
 			buf,sizeof(buf));
 
@@ -1620,7 +1615,7 @@ uint8_t devTEF668x_Radio_Is_RDAV_Available (void)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,TEF665X_Cmd_Get_RDS_Status,
 			buf,sizeof(buf));
 
@@ -1635,7 +1630,7 @@ uint16_t devTEF668x_Radio_Get_Quality_Level (uint8_t fm,uint8_t *status,int16_t 
 {
 	uint8_t buf[4];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Quality_Data,
 			buf,sizeof(buf));
@@ -1660,14 +1655,14 @@ modulation	 = FM 0 � 1000 [*0.1 %] = 0 � 100% modulation = 0 � 75 kHz FM d
 				1000 � 2000 [*0.1 %] = 100% � 200% over-modulation range
 			AM 0 � 1000 [*0.1 %] = 0 � 100% AM modulation index
 			1000 � 2000 [*0.1 %] = 100% � 200% peak modulation range
-			
+
 */
 uint16_t devTEF668x_Radio_Get_Quality_Data (uint8_t fm,uint8_t *usn,uint8_t *wam,uint16_t *offset)
 {
 	uint8_t buf[14];
 	uint16_t r;
 	int16_t temp;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Quality_Data,
 			buf,sizeof(buf));
@@ -1694,7 +1689,7 @@ cmd 130 / 131 Get_RDS_Status
 / Get_RDS_Data
 | status, A_block, B_block, C_block, D_block, dec_error
 
-index 
+index
 1 status
 	[ 15:0 ]
 	FM RDS reception status
@@ -1744,7 +1739,7 @@ uint16_t devTEF668x_Radio_Get_RDS_Status(uint8_t fm,uint16_t *status)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Status,
 			buf,sizeof(buf));
@@ -1760,7 +1755,7 @@ uint8_t devTEF668x_Radio_Get_RDS_Data (uint8_t fm,uint16_t *status,uint16_t *A_b
 {
 	uint8_t buf[12];
 	uint8_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Data,
 			buf,sizeof(buf));
@@ -1780,7 +1775,7 @@ uint16_t devTEF668x_Radio_Get_RDS_DataRaw (uint8_t fm,uint16_t *status,uint32_t 
 {
 	uint8_t buf[6];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Data,
 			buf,sizeof(buf));
@@ -1797,7 +1792,7 @@ uint16_t devTEF668x_Radio_Get_RDS_DataRaw (uint8_t fm,uint16_t *status,uint32_t 
 module 32 / 33 FM / AM
 cmd 132 Get_AGC | input_att, feedback_att
 
-index 
+index
 1 input_att
 	[ 15:0 ]
 	RF AGC input attenuation
@@ -1813,7 +1808,7 @@ uint16_t devTEF668x_Radio_Get_AGC(uint8_t fm,uint16_t *input_att,uint16_t *feedb
 {
 	uint8_t buf[4];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_AGC,
 			buf,sizeof(buf));
@@ -1830,8 +1825,8 @@ uint16_t devTEF668x_Radio_Get_AGC(uint8_t fm,uint16_t *input_att,uint16_t *feedb
 module 32 / 33 FM / AM
 cmd 133 Get_Signal_Status | status
 
-index 
-1 status 
+index
+1 status
 	Radio signal information
 	[15] = 0 : mono signal
 	[15] = 1 : FM stereo signal (stereo pilot detected)
@@ -1842,7 +1837,7 @@ uint16_t devTEF668x_Radio_Get_Signal_Status(uint8_t fm,uint16_t *status)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Signal_Status,
 			buf,sizeof(buf));
@@ -1869,7 +1864,7 @@ uint16_t devTEF668x_Radio_Get_Processing_Status(uint8_t fm,uint16_t *softmute,ui
 {
 	uint8_t buf[6];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Processing_Status,
 			buf,sizeof(buf));
@@ -1886,7 +1881,7 @@ uint16_t devTEF668x_Radio_Get_Processing_Status(uint8_t fm,uint16_t *softmute,ui
 /*
 module 32 / 33 FM / AM
 cmd 135 Get_Interface_Status | samplerate
-index 
+index
 1 samplerate
 	[ 15:0 ]
 	Baseband digital radio sample rate (DR_I2S output)
@@ -1898,7 +1893,7 @@ uint16_t devTEF668x_Radio_Get_Interface_Status(uint8_t fm,uint16_t *samplerate)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Interface_Status,
 			buf,sizeof(buf));
@@ -1913,7 +1908,7 @@ uint16_t devTEF668x_Radio_Get_Interface_Status(uint8_t fm,uint16_t *samplerate)
 /*
 module 64 APPL
 cmd 128 Get_Operation_Status | status
-index 
+index
 1 status
 	Device operation status
 	0 = boot state; no command support
@@ -1926,7 +1921,7 @@ uint16_t devTEF668x_APPL_Get_Operation_Status(uint8_t *status)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_Operation_Status,
 			buf,sizeof(buf));
@@ -1942,8 +1937,8 @@ uint16_t devTEF668x_APPL_Get_Operation_Status(uint8_t *status)
 /*
 module 64 APPL
 cmd 129 Get_GPIO_Status | status
-index 
-1 status 
+index
+1 status
 	input state (when assigned for input use)
 	[2] = input state of GPIO_2 (no input use suggested for TEF668x)
 	[1] = input state of GPIO_1 (no input use suggested for TEF668x)
@@ -1953,7 +1948,7 @@ uint16_t devTEF668x_APPL_Get_GPIO_Status(uint16_t *status)
 {
 	uint8_t buf[2];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_GPIO_Status,
 			buf,sizeof(buf));
@@ -1970,8 +1965,8 @@ uint16_t devTEF668x_APPL_Get_GPIO_Status(uint16_t *status)
 /*
 module 64 APPL
 cmd 130 Get_Identification | device, hw_version, sw_version
-index 
-1 device 
+index
+1 device
 	device type and variant
 	[ 15:8 ] type identifier
 	8 = TEF668x �Atomic-2� series
@@ -1979,13 +1974,13 @@ index
 	15 = TEF6653 �Atomic-2 Standard�
 	13 = TEF6657 �Atomic-2 Premium�
 	12 = TEF6659 �Atomic-2 Premium DR�
-2 hw_version 
+2 hw_version
 	hardware version
 	[ 15:8 ] major number
 	1 = �V1�
 	[ 7:0 ] minor number
 	0 = �B�
-3 sw_version 
+3 sw_version
 	firmware version
 	[ 15:8 ] major number
 	1 = �1�
@@ -1996,7 +1991,7 @@ uint16_t devTEF668x_APPL_Get_Identification(uint16_t *device,uint16_t *hw_versio
 {
 	uint8_t buf[6];
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_Operation_Status,
 			buf,sizeof(buf));
@@ -2016,7 +2011,7 @@ uint16_t devTEF668x_APPL_Get_Identification(uint16_t *device,uint16_t *hw_versio
 module 64 APPL
 cmd 131 Get_LastWrite | size/module, cmd/ index, parameter1, parameter2, parameter3, �
 
-index 
+index
 1 size/module transmission size (number of parameters) and module number
 	[ 15:8 ] = 0 � 6 : number of parameters of the last write transmission
 	[ 7:0 ] = 0 � 255 : module value of the last write transmission
@@ -2038,7 +2033,7 @@ index
 uint16_t devTEF668x_APPL_Get_LastWrite(uint8_t *buf,uint16_t len)
 {
 	uint16_t r;
-	
+
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_LastWrite,
 			buf,len);

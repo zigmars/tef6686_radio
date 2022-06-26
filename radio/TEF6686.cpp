@@ -53,8 +53,7 @@ const char* const PROGMEM ptyLUT[51] = {
       "   Folk Music   ",
       "  Documentary   "};
 
-TEF6686::TEF6686() {
-}
+TEF6686::TEF6686() {}
 
 uint8_t TEF6686::init() {
   uint8_t result;
@@ -62,7 +61,7 @@ uint8_t TEF6686::init() {
   uint8_t status;
 
   Tuner_I2C_Init();
-  
+
   delay(5);
   while (true) {
     result = devTEF668x_APPL_Get_Operation_Status(&status);
@@ -78,7 +77,7 @@ uint8_t TEF6686::init() {
       delay(5);
       return 0;  //Busy
     }
-  } 
+  }
 }
 
 void TEF6686::powerOn() {
@@ -141,7 +140,7 @@ uint8_t TEF6686::readRDS() {
   uint16_t result = devTEF668x_Radio_Get_RDS_Data(1, &rdsStat, &rdsA, &rdsB, &rdsC, &rdsD, &rdsErr);
 
   if (!(result && (rdsB != 0x0) && ((rdsStat & 0x8000) != 0x0) && ((rdsErr & 0x0a00) == 0x0))) {
-    return isReady; 
+    return isReady;
   }
 
   rdsBHigh = (uint8_t)(rdsB >> 8);
@@ -150,13 +149,13 @@ uint8_t TEF6686::readRDS() {
   rdsCLow = (uint8_t)rdsC;
   rdsDHigh = (uint8_t)(rdsD >> 8);
   rdsDLow = (uint8_t)rdsD;
- 
+
   uint8_t programType = ((rdsBHigh & 3) << 3) | ((rdsBLow >> 5) & 7);
-  strcpy(rdsProgramType, (programType >= 0 && programType < 32) ? ptyLUT[programType] : "    PTY ERROR   ");
+  strcpy(rdsProgramType, (programType < sizeof(ptyLUT)) ? ptyLUT[programType] : "    PTY ERROR   ");
 
   uint8_t type = (rdsBHigh >> 4) & 15;
   uint8_t version = bitRead(rdsBHigh, 4);
-  
+
   // Groups 0A & 0B
   // Basic tuning and switching information only
   if (type == 0) {
@@ -165,12 +164,12 @@ uint8_t TEF6686::readRDS() {
     if (address >= 0 && address <= 3) {
       if (rdsDHigh != '\0') {
         rdsProgramService[address * 2] = rdsDHigh;
-      }  
+      }
       if (rdsDLow != '\0') {
         rdsProgramService[address * 2 + 1] = rdsDLow;
-      }  
+      }
       isReady = (address == 3) ? 1 : 0;
-    } 
+    }
     rdsFormatString(rdsProgramService, 8);
   }
   // Groups 2A & 2B
@@ -184,21 +183,21 @@ uint8_t TEF6686::readRDS() {
       if (addressRT >= 0 && addressRT <= 15) {
         if (rdsCHigh != 0x0D) {
           rdsRadioText[addressRT*4] = rdsCHigh;
-        }  
+        }
         else {
           len = addressRT * 4;
           cr = 1;
         }
         if (rdsCLow != 0x0D) {
           rdsRadioText[addressRT * 4 + 1] = rdsCLow;
-        }  
+        }
         else {
           len = addressRT * 4 + 1;
           cr = 1;
         }
         if (rdsDHigh != 0x0D) {
           rdsRadioText[addressRT * 4 + 2] = rdsDHigh;
-        }  
+        }
         else {
           len = addressRT * 4 + 2;
           cr = 1;
@@ -216,7 +215,7 @@ uint8_t TEF6686::readRDS() {
       if (addressRT >= 0 && addressRT <= 7) {
         if (rdsDHigh != '\0') {
           rdsRadioText[addressRT * 2] = rdsDHigh;
-        }  
+        }
         if (rdsDLow != '\0') {
           rdsRadioText[addressRT * 2 + 1] = rdsDLow;
         }
@@ -227,11 +226,11 @@ uint8_t TEF6686::readRDS() {
         rdsRadioText[i] = ' ';
       }
     }
-    if (ab != rdsAb) {      
+    if (ab != rdsAb) {
       for (uint8_t i = 0; i < 64; i++) {
         rdsRadioText[i] = ' ';
       }
-      rdsRadioText[64] = '\0';     
+      rdsRadioText[64] = '\0';
       isRdsNewRadioText = 1;
     }
     else {
@@ -240,19 +239,19 @@ uint8_t TEF6686::readRDS() {
     rdsAb = ab;
     rdsFormatString(rdsRadioText, 64);
   }
-  return isReady; 
+  return isReady;
 }
- 
+
 void TEF6686::getRDS(RdsInfo* rdsInfo) {
   strcpy(rdsInfo->programType, rdsProgramType);
   strcpy(rdsInfo->programService, rdsProgramService);
-  strcpy(rdsInfo->radioText, rdsRadioText); 
+  strcpy(rdsInfo->radioText, rdsRadioText);
 }
 
-void TEF6686::rdsFormatString(char* str, uint16_t length) {  
-  for (uint16_t i = 0; i < length; i++) {    
+void TEF6686::rdsFormatString(char* str, uint16_t length) {
+  for (uint16_t i = 0; i < length; i++) {
     if ((str[i] != 0 && str[i] < 32) || str[i] > 126 ) {
-      str[i] = ' ';  
+      str[i] = ' ';
     }
   }
 }
@@ -266,32 +265,32 @@ uint16_t TEF6686::seek(uint8_t up) {
       case 20:
         Radio_ChangeFreqOneStep(up);
         Radio_SetFreq(Radio_SEARCHMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
-      
+
         mode = 30;
         Radio_CheckStationInit();
         Radio_ClearCurrentStation();
-        
+
         break;
-      
+
       case 30:
         delay(20);
         Radio_CheckStation();
         if (Radio_CheckStationStatus() >= NO_STATION) {
           mode = 40;
-        }   
-        
+        }
+
         break;
 
       case 40:
-        if (Radio_CheckStationStatus() == NO_STATION) {        
+        if (Radio_CheckStationStatus() == NO_STATION) {
           mode = (startFrequency == Radio_GetCurrentFreq()) ? 50 : 20;
         }
         else if (Radio_CheckStationStatus() == PRESENT_STATION) {
           mode = 50;
         }
-        
+
         break;
-      
+
       case 50:
         Radio_SetFreq(Radio_PRESETMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
         return Radio_GetCurrentFreq();
@@ -301,7 +300,7 @@ uint16_t TEF6686::seek(uint8_t up) {
 }
 
 uint16_t TEF6686::seekSync(uint8_t up) {
-  if (seekMode == 0) {	
+  if (seekMode == 0) {
 	seekMode = 20;
 	seekStartFrequency = Radio_GetCurrentFreq();
   }
@@ -309,39 +308,39 @@ uint16_t TEF6686::seekSync(uint8_t up) {
     case 20:
 	  Radio_ChangeFreqOneStep(up);
       Radio_SetFreq(Radio_SEARCHMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
-      
+
       seekMode = 30;
       Radio_CheckStationInit();
       Radio_ClearCurrentStation();
-        
+
       return 0;
-      
+
     case 30:
       delay(20);
       Radio_CheckStation();
       if (Radio_CheckStationStatus() >= NO_STATION) {
         seekMode = 40;
-      }   
-        
+      }
+
       return 0;
 
     case 40:
-      if (Radio_CheckStationStatus() == NO_STATION) {        
+      if (Radio_CheckStationStatus() == NO_STATION) {
         seekMode = (seekStartFrequency == Radio_GetCurrentFreq()) ? 50 : 20;
       }
       else if (Radio_CheckStationStatus() == PRESENT_STATION) {
         seekMode = 50;
       }
-        
+
       return 0;
-      
+
     case 50:
 	  seekMode = 0;
       Radio_SetFreq(Radio_PRESETMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
-      return 1;  
+      return 1;
   }
   return 0;
-}	
+}
 
 uint16_t TEF6686::tune(uint8_t up) {
   Radio_ChangeFreqOneStep(up);

@@ -22,7 +22,7 @@ class TEF6686 {
     TEF6686();
     uint8_t init();
     void powerOn();					// call in setup
-    void powerOff();				
+    void powerOff();
     void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
     uint16_t getFrequency(); // returns the current frequency
     uint16_t getLevel();
@@ -37,7 +37,7 @@ class TEF6686 {
     void setUnMute();
     uint8_t readRDS();
     void getRDS(RdsInfo* rdsInfo);
-     
+
   private:
     uint16_t seek(uint8_t up);
     uint16_t tune(uint8_t up);
@@ -48,7 +48,7 @@ class TEF6686 {
     uint8_t rdsAb;
     char rdsProgramType[17];
     uint8_t isRdsNewRadioText;
-	
+
 	uint16_t seekMode;
 	uint16_t seekStartFrequency;
 };

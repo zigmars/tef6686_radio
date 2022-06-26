@@ -20,7 +20,7 @@
 #define TEF665X_SW_FREQUENCY_MAX	27000
 #define TEF665X_SW_FREQUENCY_STEP	1
 
-#define TEF665X_Is_FM_Freq(a)	((a>=TEF665X_FM_FREQUENCY_MIN)&&(a<=TEF665X_FM_FREQUENCY_MAX))
+#define TEF665X_Is_FM_Freq(a)	((TEF665X_FM_FREQUENCY_MIN<=a)&&(a<=TEF665X_FM_FREQUENCY_MAX))
 #define TEF665X_Is_LW_Freq(a)	((a>=TEF665X_LW_FREQUENCY_MIN)&&(a<=TEF665X_LW_FREQUENCY_MAX))
 #define TEF665X_Is_MW_Freq(a)	((a>=TEF665X_MW_FREQUENCY_MIN)&&(a<=TEF665X_MW_FREQUENCY_MAX))
 #define TEF665X_Is_SW_Freq(a)	((a>=TEF665X_SW_FREQUENCY_MIN)&&(a<=TEF665X_SW_FREQUENCY_MAX))
@@ -69,7 +69,7 @@ typedef enum
 	TEF665X_Cmd_Set_Highcut_Max = 55,
 	TEF665X_Cmd_Set_Highcut_Min = 56,
 	TEF665X_Cmd_Set_Lowcut_Min = 58,
-	
+
 	TEF665X_Cmd_Set_Stereo_Time = 60,
 	TEF665X_Cmd_Set_Stereo_Mod = 61,
 	TEF665X_Cmd_Set_Stereo_Level = 62,
@@ -77,7 +77,7 @@ typedef enum
 	TEF665X_Cmd_Set_Stereo_Mph = 64,
 	TEF665X_Cmd_Set_Stereo_Max = 65,
 	TEF665X_Cmd_Set_Stereo_Min = 66,
-	
+
 	TEF668X_Cmd_Set_StHiBlend_Time = 70,	//only Lithio avaliable
 	TEF668X_Cmd_Set_StHiBlend_Mod = 71, //only Lithio avaliable
 	TEF668X_Cmd_Set_StHiBlend_Level  = 72, //only Lithio avaliable
@@ -96,7 +96,7 @@ typedef enum
 	TEF668X_Cmd_Set_StBandBlend_Time = 90,	//only Lithio avaliable
 	TEF668X_Cmd_Set_StBandBlend_Gain = 91, //only Lithio avaliable
 	TEF668X_Cmd_Set_StBandBlend_Bias  = 92, //only Lithio avaliable
-	
+
 	TEF665X_Cmd_Get_Quality_Status = 128,
 	TEF665X_Cmd_Get_Quality_Data = 129,
 	TEF665X_Cmd_Get_RDS_Status = 130,
@@ -113,7 +113,7 @@ typedef enum
 	TEF665X_Cmd_Set_Mute = 11,
 	TEF665X_Cmd_Set_Input = 12,
 	TEF665X_Cmd_Set_Output_Source = 13,
-	
+
 	TEF665X_Cmd_Set_Ana_Out = 21,
 	TEF665X_Cmd_Set_Dig_IO = 22,
 	TEF665X_Cmd_Set_Input_Scaler = 23,
@@ -279,4 +279,4 @@ uint16_t devTEF668x_Radio_Set_StereoImprovement(uint8_t fm,uint16_t mode);
 uint16_t devTEF668x_Radio_Set_StHiBlend_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay);
 
 
-#endif 
+#endif

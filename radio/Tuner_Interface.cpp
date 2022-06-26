@@ -103,21 +103,18 @@ static const unsigned char PROGMEM tuner_init_tab[] = {
 };
 
 //return 1 --> IIC sucess
-unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len)
-{
-  uint16_t i;
-  uint8_t r;
+unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len) {
   //Serial.println(I2C_ADDR, HEX);
   //Serial.println("Send to I2C: ");
   Wire2.beginTransmission(I2C_ADDR);
   //Serial.println("beginTransmission");
-  for (i = 0; i < len; i++) {
+  for (uint16_t i = 0; i < len; i++) {
     Wire2.write(buf[i]);
     //Serial.print(buf[i], HEX);
     //Serial.print(" ");
   }
   //Serial.println("Wire.write");
-  r = Wire2.endTransmission();
+  uint8_t r = Wire2.endTransmission();
   //Serial.println("Wire.endTransmission:");
   //Serial.print(r);
   //Serial.println();
@@ -152,7 +149,7 @@ void Tuner_WaitMs (uint16_t ms)
 //------------load patch and init parameters-----------------
 
 /*
-The transmission example below shows a data content of 12 words for every data transmission. 
+The transmission example below shows a data content of 12 words for every data transmission.
 The data stream can be split in any desired length on (2-byte) word boundaries with every data transmission starting with hex value 1B
 */
 #define TEF665X_SPLIT_SIZE		24
@@ -173,7 +170,7 @@ static uint16_t Tuner_Patch_Load(const unsigned char * pLutBytes, uint16_t size)
 			buf[1+i] = pLutBytes[i];
 
 		pLutBytes+=len;
-		
+
 		if(1 != (r = Tuner_WriteBuffer(buf, len+1)))
 		{
 			break;
@@ -190,12 +187,12 @@ static uint16_t Tuner_Table_Write(const unsigned char * tab)
 		Tuner_WaitMs(tab[2]);
 		return 1;
 	}
-//load patch table1	
+//load patch table1
 	else if(tab[1] == INIT_FLAG_PATCH1)
 	{
 		return Tuner_Patch_Load(pPatchBytes, PatchSize);
 	}
-//load patch table2 
+//load patch table2
 	else if(tab[1] == INIT_FLAG_PATCH2)
 	{
 		return Tuner_Patch_Load(pLutBytes, LutSize);
@@ -210,11 +207,10 @@ void Tuner_I2C_Init() {
 
 //return 1 = sucsess
 uint16_t Tuner_Init(void) {
-	uint16_t i;
 	uint16_t r;
 	const unsigned char *p = tuner_init_tab;
 
-	for(i=0;i<sizeof(tuner_init_tab);i+=(p[i]+1))
+	for(uint16_t i=0;i<sizeof(tuner_init_tab);i+=(p[i]+1))
 	{
 		if(1 != (r=Tuner_Table_Write(p+i)))
 			break;
